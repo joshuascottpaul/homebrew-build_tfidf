@@ -147,6 +147,7 @@ class BuildTfidf < Formula
   end
 
   def install
+    ENV["HOMEBREW_ALLOW_INSTALL_FROM_PATHS"] = "1"
     venv = virtualenv_create(libexec, "python3.10")
     system libexec/"bin/python", "-m", "ensurepip"
     venv.pip_install resource("setuptools")
