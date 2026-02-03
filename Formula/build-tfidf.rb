@@ -136,10 +136,23 @@ class BuildTfidf < Formula
     sha256 "70ebe60a560414dc8dd6cfe8fed105c8f002c0d11f765f5adfe8d63d42c0467f"
   end
 
+  resource "setuptools" do
+    url "https://files.pythonhosted.org/packages/76/95/faf61eb8363f26aa7e1d762267a8d602a1b26d4f3a1e758e92cb3cb8b054/setuptools-80.10.2.tar.gz"
+    sha256 "8b0e9d10c784bf7d262c4e5ec5d4ec94127ce206e8738f29a437945fbc219b70"
+  end
+
+  resource "wheel" do
+    url "https://files.pythonhosted.org/packages/89/24/a2eb353a6edac9a0303977c4cb048134959dd2a51b48a269dfc9dde00c8a/wheel-0.46.3.tar.gz"
+    sha256 "e3e79874b07d776c40bd6033f8ddf76a7dad46a7b8aa1b2787a83083519a1803"
+  end
+
   def install
     venv = virtualenv_create(libexec, "python3.10")
     system libexec/"bin/python", "-m", "ensurepip"
+    venv.pip_install resource("setuptools")
+    venv.pip_install resource("wheel")
     resources.each do |r|
+      next if r.name == "setuptools" || r.name == "wheel"
       if r.url.end_with?(".whl")
         r.fetch
         wheel = Pathname.pwd/r.url.split("/").last
@@ -147,11 +160,11 @@ class BuildTfidf < Formula
         system libexec/"bin/pip", "install", "--no-deps", "--only-binary", ":all:", wheel
       else
         r.stage do
-          system libexec/"bin/pip", "install", "--no-deps", "."
+          venv.pip_install Pathname.pwd
         end
       end
     end
-    system libexec/"bin/pip", "install", "--no-deps", buildpath
+    system libexec/"bin/pip", "install", "--no-deps", "--no-build-isolation", buildpath
     bin.install_symlink libexec/"bin/tfidf-search"
   end
 
