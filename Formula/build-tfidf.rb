@@ -161,11 +161,11 @@ class BuildTfidf < Formula
         system libexec/"bin/pip", "install", "--no-deps", "--only-binary", ":all:", wheel
       else
         r.stage do
-          venv.pip_install Pathname.pwd
+          system libexec/"bin/pip", "install", "--no-deps", "--no-build-isolation", "--no-use-pep517", "."
         end
       end
     end
-    system libexec/"bin/pip", "install", "--no-deps", "--no-build-isolation", buildpath
+    system libexec/"bin/pip", "install", "--no-deps", "--no-build-isolation", "--no-use-pep517", buildpath
     bin.install_symlink libexec/"bin/tfidf-search"
   end
 
