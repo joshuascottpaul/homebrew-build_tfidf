@@ -138,17 +138,20 @@ class BuildTfidf < Formula
 
   def install
     venv = virtualenv_create(libexec, "python3.10")
+    system libexec/"bin/python", "-m", "ensurepip"
     resources.each do |r|
       if r.url.end_with?(".whl")
         r.fetch
-        venv.pip_install r.cached_download
+        wheel = Pathname.pwd/r.url.split("/").last
+        cp r.cached_download, wheel
+        system libexec/"bin/pip", "install", "--no-deps", "--only-binary", ":all:", wheel
       else
         r.stage do
-          venv.pip_install Pathname.pwd
+          system libexec/"bin/pip", "install", "--no-deps", "."
         end
       end
     end
-    venv.pip_install_and_link buildpath
+    system libexec/"bin/pip", "install", "--no-deps", buildpath
     bin.install_symlink libexec/"bin/tfidf-search"
   end
 
