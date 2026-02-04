@@ -18,6 +18,16 @@ class BuildTfidf < Formula
     bin.install_symlink libexec/"bin/tfidf-search"
   end
 
+  def caveats
+    <<~EOS
+      This formula skips Homebrew relocation because the tiktoken wheel ships a
+      non-relocatable native extension. Relocation would fail during install.
+
+      Risk: binaries remain linked to their original install path. If you move
+      the Cellar or use nonstandard prefixes, reinstall may be required.
+    EOS
+  end
+
   test do
     system bin/"tfidf-search", "--help"
     (testpath/"corpus").mkpath
